@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Koulun ruokalista</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 100%; height: 100%; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #ffffff;
+    color: #111111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  main {
+    width: min(100%, 1100px);
+    padding: 28px 36px;
+    text-align: center;
+  }
+  #weekday {
+    font-size: clamp(2rem, 5vw, 4.2rem);
+    font-weight: 700;
+    line-height: 1.05;
+    margin-bottom: 6px;
+  }
+  #date {
+    font-size: clamp(1.25rem, 3vw, 2.2rem);
+    margin-bottom: 24px;
+  }
+  .menu {
+    border: 3px solid #111;
+    border-radius: 18px;
+    padding: 24px 28px;
+    text-align: left;
+    font-size: clamp(1.2rem, 2.4vw, 2rem);
+    line-height: 1.35;
+    background: #fafafa;
+  }
+  .menu div { margin: 5px 0; }
+  .menu div:first-child { font-weight: 700; }
+  .empty { text-align: center; font-weight: 700; }
+  .small {
+    font-size: .85em;
+    font-weight: 400 !important;
+  }
+</style>
+</head>
+<body>
+<main>
+  <div id="weekday"></div>
+  <div id="date"></div>
+  <div id="menu" class="menu"></div>
+</main>
+
+<script>
+const menus = {
+  1: {
+    maanantai: ["Kermainen lohikeitto (L,G)", "Vihannes/juurespala", "Leipä", "Juusto"],
+    tiistai: ["Broilerijauhelihakastike (L)", "Pasta (M)", "Vihreä salaatti"],
+    keskiviikko: ["Kinkkukiusaus (L,G)", "Raejuusto", "Raastesalaatti"],
+    torstai: ["Kanaviillokki (M)", "Peruna (M,G)", "Vihannes (M,G)", "Vihreä salaatti", "Mustaherukkahillo"],
+    perjantai: ["Aurinkoinen juuressosekeitto (L,G)", "Linssi-raejuustolisuke (L,G)", "Hedelmä", "Leipä", "Juusto"]
+  },
+  2: {
+    maanantai: ["Lihakeitto (M,G) / Kesäkeitto (L,G)", "Vihannes/juurespala", "Leipä", "Juusto"],
+    tiistai: ["Broileripyörykät (M)", "Perunamuusi (L,G)", "Vihannes (M,G)", "Vihreä salaatti"],
+    keskiviikko: ["Lohikiusaus (L,G)", "Raastesalaatti", "Punajuuri"],
+    torstai: ["Jauhelihalasagnette (L)", "Vihreä salaatti"],
+    perjantai: ["Tortillat (M)", "Kasvistäyte (L,G)", "Vihreä salaatti", "Tomaattisalsa (M,G)", "Ranch-jogurttikastike (L,G)"]
+  },
+  3: {
+    maanantai: ["Aurinkoinen broilerikeitto (L,G)", "Vihannes/juurespala", "Leipä", "Juusto"],
+    tiistai: ["Nakkikastike (M) / Herkkusienikastike (L)", "Keitetty peruna (M,G)", "Vihreä salaatti"],
+    keskiviikko: ["Maksalaatikko (M,G) / Liha-kaalilaatikko (M,G)", "Raastesalaatti", "Puolukkahillo"],
+    torstai: ["Kalamureke (L,G)", "Perunamuusi (L,G)", "Vihreä salaatti", "Kermaviilikastike (L,G)"],
+    perjantai: ["Ohrasuurimopuuro (L)", "Marjakiisseli (M,G)", "Keitetty kananmuna", "Hedelmä", "Leipä", "Juusto"]
+  },
+  4: {
+    maanantai: ["Makkarakeitto (M,G) / Linssikeitto (M,G)", "Vihannes/juurespala", "Suolakurkku", "Leipä", "Juusto"],
+    tiistai: ["Pinaatti- ja porkkanaohukaiset (L)", "Perunamuusi (L,G)", "Keitetty kananmuna", "Raastesalaatti", "Puolukkahillo"],
+    keskiviikko: ["Broileri-nuudelipata (M)", "Vihannes (M,G)", "Raastesalaatti", "Sweet chili-kastike"],
+    torstai: ["Smetanainen uunikala (L,G)", "Keitetty peruna (M,G)", "Broileri-nachosalaatti (M,G)", "Vihreä salaatti"],
+    perjantai: ["Hernekeitto possu-jauhelihalla (M,G)", "Hedelmä", "Leipä", "Juusto", "Sinappi", "Jälkiruoka"]
+  },
+  5: {
+    maanantai: ["Kahden kalan keitto (L,G)", "Vihannes/juurespala", "Leipä", "Juusto"],
+    tiistai: ["Tortillat (M)", "Broileritäyte (M,G)", "Vihreä salaatti", "Tomaattisalsa (M,G)", "Valkosipulikermaviili (L,G)"],
+    keskiviikko: ["Kebabkiusaus (L,G) / Punajuurikiusaus (L,G)", "Vihreä salaatti", "Kebabkastike (M,G)"],
+    torstai: ["Palermon kasvispasta (L)", "Raejuusto", "Vihreä salaatti"],
+    perjantai: ["Juustoinen juuressosekeitto (L,G)", "Linssisalsa (M,G)", "Hedelmä", "Leipä", "Juusto"]
+  },
+  6: {
+    maanantai: ["Aasialainen broilerikeitto (M,G)", "Vihannes/juurespala", "Leipä", "Juusto"],
+    tiistai: ["Kalapyörykät (M,G)", "Perunamuusi (L,G)", "Raastesalaatti", "Punajuuri", "Kermaviilikastike (L,G)"],
+    keskiviikko: ["Kasvisrisotto (M,G)", "Vihreä salaatti", "Kvinoasalaatti (M,G, saattaa sis. pähkinää)"],
+    torstai: ["Bolognelainen jauhelihakastike (M,G)", "Pasta (M)", "Raastesalaatti"],
+    perjantai: ["Riisipuuro (L,G)", "Marjakiisseli (M,G)", "Hedelmä", "Leipä", "Raejuusto", "Leikkele"]
+  },
+  7: {
+    maanantai: ["Tonnikalakastike (L)", "Pasta (M)", "Vihannes (M,G)", "Vihreä salaatti"],
+    tiistai: ["Uunimakkara (L,G) / Kasvispihvi (M,G)", "Perunamuusi (L,G)", "Raastesalaatti", "Ketsuppi ja sinappi"],
+    keskiviikko: ["Keltainen broilerikastike (L)", "Keitetty peruna (M,G)", "Vihreä salaatti", "Marinoitu sipuli", "Oliivi", "Salaattijuustokuutio"],
+    torstai: ["Jauheliha-makaronilaatikko (M) / Texmex-kasvispastavuoka (L)", "Raastesalaatti", "Suolakurkku", "Ketsuppi"],
+    perjantai: ["Juustoinen perunavelli (L,G)", "Grahamlihapiirakka (M)", "Keitetty kananmuna", "Hedelmä", "Jälkiruoka"]
+  },
+  8: {
+    maanantai: ["Tomaattinen jauhelihakeitto (M,G) / Juures-minestronekeitto (M)", "Vihannes/juurespala", "Leipä", "Juusto (L,G)"],
+    tiistai: ["Kalaleike (M)", "Perunamuusi (L,G)", "Vihreä salaatti", "Remoulade-kastike (L,G)"],
+    keskiviikko: ["Itämainen broilerikastike (M,G)", "Riisi (M,G)", "Vihreä salaatti"],
+    torstai: ["Sadonkorjaajan nakkipyttipannu (M,G) / Kasvispyttipannu (M,G)", "Raastesalaatti", "Kurkkusalaatti (M,G)", "Ketsuppi ja sinappi"],
+    perjantai: ["Pinaattikeitto (L) / Kasvissosekeitto (L,G)", "Keitetty kananmuna", "Riisipiirakka (L)", "Hedelmä"]
+  }
+};
+
+const weekdays = ["sunnuntai","maanantai","tiistai","keskiviikko","torstai","perjantai","lauantai"];
+const displayDays = {
+  maanantai: "Maanantai", tiistai: "Tiistai", keskiviikko: "Keskiviikko",
+  torstai: "Torstai", perjantai: "Perjantai",
+  sunnuntai: "Sunnuntai", lauantai: "Lauantai"
+};
+
+// Perjantai 14.8.2026 = viikon 1 perjantai.
+// Kouluviikkojen 1–8 kierto jatkuu tämän jälkeen viikosta 1 uudelleen.
+const anchor = new Date(2026, 7, 14);
+anchor.setHours(0,0,0,0);
+
+function localDateOnly(d) {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+function getRotationWeek(date) {
+  const diffDays = Math.floor((localDateOnly(date) - anchor) / 86400000);
+  const schoolWeekOffset = Math.floor((diffDays + 1) / 7);
+  return ((schoolWeekOffset % 8) + 8) % 8 + 1;
+}
+
+function getMenuDay(date) {
+  return weekdays[date.getDay()];
+}
+
+function formatDate(date) {
+  return new Intl.DateTimeFormat("fi-FI", {
+    day: "numeric", month: "numeric", year: "numeric"
+  }).format(date);
+}
+
+function render() {
+  const now = new Date();
+  const day = getMenuDay(now);
+  const week = getRotationWeek(now);
+
+  document.getElementById("weekday").textContent = displayDays[day];
+  document.getElementById("date").textContent = formatDate(now);
+
+  const menu = document.getElementById("menu");
+
+  if (day === "sunnuntai" || day === "lauantai") {
+    menu.innerHTML = '<div class="empty">Ei kouluruokailua</div>';
+    return;
+  }
+
+  menu.innerHTML = menus[week][day]
+    .map(item => `<div>${item}</div>`)
+    .join("");
+}
+
+render();
+setInterval(render, 60000);
+</script>
+</body>
+</html>
