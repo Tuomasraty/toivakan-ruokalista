@@ -133,9 +133,12 @@ function localDateOnly(d) {
 }
 
 function getRotationWeek(date) {
+  // 14.8.2026 on viikon 1 perjantai.
+  // 17.8.2026 alkaa viikon 2 maanantai.
+  // Viikot kiertävät 1 -> 2 -> ... -> 8 -> 1.
   const diffDays = Math.floor((localDateOnly(date) - anchor) / 86400000);
-  const schoolWeekOffset = Math.floor((diffDays + 1) / 7);
-  return ((schoolWeekOffset % 8) + 8) % 8 + 1;
+  const mondayBasedWeekOffset = Math.floor((diffDays + 3) / 7);
+  return ((mondayBasedWeekOffset % 8) + 8) % 8 + 1;
 }
 
 function getMenuDay(date) {
