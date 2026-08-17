@@ -22,13 +22,13 @@
     text-align: center;
   }
   #weekday {
-    font-size: clamp(2rem, 5vw, 4.2rem);
+    font-size: clamp(2.2rem, 5.5vw, 4.5rem);
     font-weight: 700;
     line-height: 1.05;
     margin-bottom: 6px;
   }
   #date {
-    font-size: clamp(1.25rem, 3vw, 2.2rem);
+    font-size: clamp(1.3rem, 3vw, 2rem);
     margin-bottom: 24px;
   }
   .menu {
@@ -46,6 +46,39 @@
   .small {
     font-size: .85em;
     font-weight: 400 !important;
+  }
+
+  .menu {
+    border: 3px solid #111;
+    border-radius: 22px;
+    padding: 26px 34px;
+    text-align: left;
+    font-size: clamp(1.25rem, 2.2vw, 1.8rem);
+    line-height: 1.25;
+    background: #fafafa;
+  }
+  .dish {
+    margin: 10px 0;
+    font-size: clamp(1.5rem, 3.2vw, 2.8rem);
+    font-weight: 700;
+  }
+  .side {
+    margin: 6px 0;
+    font-size: clamp(1.15rem, 2vw, 1.7rem);
+    font-weight: 400;
+  }
+  .allergen {
+    font-size: .48em;
+    font-weight: 400;
+    white-space: nowrap;
+    margin-left: .18em;
+    vertical-align: middle;
+    opacity: .75;
+  }
+  .empty {
+    text-align: center;
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    font-weight: 700;
   }
 </style>
 </head>
@@ -137,7 +170,7 @@ function getRotationWeek(date) {
   // 17.8.2026 alkaa viikon 2 maanantai.
   // Viikot kiertävät 1 -> 2 -> ... -> 8 -> 1.
   const diffDays = Math.floor((localDateOnly(date) - anchor) / 86400000);
-  const mondayBasedWeekOffset = Math.floor((diffDays + 3) / 7);
+  const mondayBasedWeekOffset = Math.floor((diffDays + 4) / 7);
   return ((mondayBasedWeekOffset % 8) + 8) % 8 + 1;
 }
 
@@ -167,7 +200,13 @@ function render() {
   }
 
   menu.innerHTML = menus[week][day]
-    .map(item => `<div>${item}</div>`)
+    .map((item, i) => {
+      const parts = item.match(/^(.*?)(?:\s*\(([^)]*)\))$/);
+      const main = parts ? parts[1].trim() : item;
+      const tags = parts ? parts[2].trim() : "";
+      const cls = i < 2 ? "dish" : "side";
+      return `<div class="${cls}">${main}${tags ? `<span class="allergen">(${tags})</span>` : ""}</div>`;
+    })
     .join("");
 }
 
