@@ -166,12 +166,13 @@ function localDateOnly(d) {
 }
 
 function getRotationWeek(date) {
-  // 14.8.2026 on viikon 1 perjantai.
-  // 17.8.2026 alkaa viikon 2 maanantai.
-  // Viikot kiertävät 1 -> 2 -> ... -> 8 -> 1.
-  const diffDays = Math.floor((localDateOnly(date) - anchor) / 86400000);
-  const mondayBasedWeekOffset = Math.floor((diffDays + 4) / 7);
-  return ((mondayBasedWeekOffset % 8) + 8) % 8 + 1;
+  // 14.8.2026 = viikko 1; seuraava maanantai aloittaa viikon 2.
+  // Syyslomaviikko 12.–18.10.2026 ei vie kiertoa eteenpäin.
+  const day = localDateOnly(date);
+  const diffDays = Math.round((Date.UTC(day.getFullYear(), day.getMonth(), day.getDate()) - Date.UTC(2026, 7, 14)) / 86400000);
+  let weekOffset = Math.floor((diffDays + 4) / 7);
+  if (day >= new Date(2026, 9, 19)) weekOffset -= 1;
+  return ((weekOffset % 8) + 8) % 8 + 1;
 }
 
 function getMenuDay(date) {
